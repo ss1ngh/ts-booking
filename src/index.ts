@@ -1,7 +1,6 @@
-const express = require ('express');
-
-const { ServerConfig, Logger } = require('./config');
-const apiRoutes = require('./routes');
+import express, { Request, Response, NextFunction } from 'express';
+import { ServerConfig, Logger } from './config';
+import apiRoutes from './routes';
 
 const app = express();
 
@@ -11,7 +10,7 @@ app.use(express.urlencoded({extended : true}));
 app.use('/api', apiRoutes);
 
 //global error handler
-app.use((err, req, res, next) => {
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 
     Logger.error(err.message, {
         stack : err.stack,
@@ -19,7 +18,7 @@ app.use((err, req, res, next) => {
         method : req.method
     });
 
-    const statusCode = err.status || "500";
+    const statusCode = err.status || 500; 
     const message = err.message || "Internal Server Error";
 
     return res.status(statusCode).json({
@@ -31,5 +30,5 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(ServerConfig.PORT, () => {
-    console.log(`server running on port :  localhost:${ServerConfig.PORT}`);
-})
+    console.log(`server running on port : localhost:${ServerConfig.PORT}`);
+});

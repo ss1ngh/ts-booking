@@ -1,0 +1,1 @@
+export * as MovieController from './movie.controller';

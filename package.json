@@ -1,0 +1,27 @@
+{
+  "name": "boxoffice-engine",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.ts",
+  "scripts": {
+    "dev": "npx nodemon src/index.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@prisma/client": "^7.2.0",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "express-router": "^0.0.1",
+    "http-status-codes": "^2.3.0",
+    "winston": "^3.19.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.0.9",
+    "prisma": "^7.2.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}
