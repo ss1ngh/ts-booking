@@ -19,8 +19,11 @@
   },
   "homepage": "https://github.com/ss1ngh/ts-booking#readme",
   "dependencies": {
+    "@prisma/adapter-pg": "^7.4.2",
+    "@prisma/client": "^7.4.2",
     "@types/express": "^5.0.6",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "pg": "^8.20.0"
   },
   "devDependencies": {
     "@types/pg": "^8.18.0",
