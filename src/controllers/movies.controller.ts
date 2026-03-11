@@ -1,12 +1,12 @@
 import { Request, Response, NextFunction } from "express";
-import { addMovie, deleteMovie, getAllMovies, getMovieById, getMoviesWithShowtimes } from "src/repositories";
-import { createMovieSchema } from "src/types";
+import { addMovie, deleteMovie, getAllMovies, getMovieById, getMoviesWithShowtimes, updateMovie } from "../repositories/index.js";
+import { createMovieSchema, updateMovieSchema } from "../types/index.js";
 import { StatusCodes } from "http-status-codes";
 import z from "zod";
-import { NotFoundError } from "src/utils/AppError";
+import { NotFoundError } from "../utils/AppError.js";
 
 
-export const handleAddMovie = async(req : Request, res : Response, next : NextFunction) => {
+export const handleAddMovie = async (req: Request, res: Response, next: NextFunction) => {
     try {
         //validate input
         const validatedData = createMovieSchema.parse(req.body);
@@ -14,53 +14,48 @@ export const handleAddMovie = async(req : Request, res : Response, next : NextFu
         const movie = await addMovie(validatedData);
 
         return res.status(StatusCodes.CREATED).json({
-            success:true,
-            message : "Movie added successfully",
-            data : movie,
-            error : {}
+            success: true,
+            message: "Movie added successfully",
+            data: movie,
+            error: {}
         });
     } catch (error) {
         next(error);
     }
 }
 
-export const handleDeleteMovie = async(req : Request, res : Response, next : NextFunction) => {
+export const handleDeleteMovie = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const movieId = z.uuid().parse(req.params.movieId);
-        //check
-        const existing = await getMovieById(movieId);
-        if (!existing) {
-            throw new NotFoundError("Movie");
-        }
         //db call
-        const movie = await deleteMovie(movieId);
+        await deleteMovie(movieId);
 
         res.status(StatusCodes.OK).json({
-            success : true,
-            message : "Successfully deleted movie",
-            error : {},
-            data : movie,
+            success: true,
+            message: "Successfully deleted movie",
+            error: {},
+            data: { movieId },
         })
-    } catch(error) {
+    } catch (error) {
         next(error);
     }
 }
 
-export const handleGetMovieById = async(req : Request, res : Response, next : NextFunction) => {
-    try{
+export const handleGetMovieById = async (req: Request, res: Response, next: NextFunction) => {
+    try {
         const movieId = z.uuid().parse(req.params.movieId);
 
         const movie = await getMovieById(movieId);
 
-        if(!movie) {
+        if (!movie) {
             throw new NotFoundError("Movie")
         }
 
         res.status(StatusCodes.OK).json({
-            success : true,
-            message : `Successfully fetched Movie with id : ${movieId}`,
-            data : movie,
-            error : {}
+            success: true,
+            message: `Successfully fetched Movie with id : ${movieId}`,
+            data: movie,
+            error: {}
         })
     } catch (error) {
         next(error);
@@ -68,37 +63,56 @@ export const handleGetMovieById = async(req : Request, res : Response, next : Ne
 }
 
 
-export const handleGetAllMovies = async(req : Request, res : Response, next : NextFunction) => {
-    try{
-        const movies = await getAllMovies();
+export const handleGetAllMovies = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const skip = req.query.skip ? parseInt(req.query.skip as string, 10) : undefined;
+        const take = req.query.take ? parseInt(req.query.take as string, 10) : undefined;
+        const movies = await getAllMovies({ skip, take });
 
         res.status(StatusCodes.OK).json({
-            success : true,
-            message : "Successfully fetched all Movies",
-            data : movies,
-            error : {}
-        })
+            success: true,
+            message: "Successfully fetched all Movies",
+            data: movies,
+            error: {}
+        });
     } catch (error) {
         next(error);
     }
 }
 
-export const handleGetMovieWithShowtimes = async(req : Request, res : Response, next : NextFunction) => {
-    try{
+export const handleGetMovieWithShowtimes = async (req: Request, res: Response, next: NextFunction) => {
+    try {
         const movieId = z.uuid().parse(req.params.movieId);
-
         const movieWithSchedule = await getMoviesWithShowtimes(movieId);
 
-        if(!movieWithSchedule) {
-            throw new NotFoundError("Movie")
+        if (!movieWithSchedule) {
+            throw new NotFoundError("Movie");
         }
 
         res.status(StatusCodes.OK).json({
-            success : true,
-            message : `Successfully fetched Movie with showtimes`,
-            data : movieWithSchedule,
-            error : {}
-        })
+            success: true,
+            message: `Successfully fetched Movie with showtimes`,
+            data: movieWithSchedule,
+            error: {}
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+
+export const handleUpdateMovie = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const movieId = z.uuid().parse(req.params.movieId);
+        const validatedData = updateMovieSchema.parse(req.body);
+        
+        const updatedMovie = await updateMovie(movieId, validatedData);
+
+        return res.status(StatusCodes.OK).json({
+            success: true,
+            message: "Successfully updated movie",
+            data: updatedMovie,
+            error: {}
+        });
     } catch (error) {
         next(error);
     }

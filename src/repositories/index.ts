@@ -1,2 +1,2 @@
-export * from './movies.repository'
-export * from './user.repository'
+export * from './movies.repository.js'
+export * from './user.repository.js'
