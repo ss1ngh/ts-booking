@@ -23,6 +23,9 @@
 >>>>>>> Stashed changes
   },
   "homepage": "https://github.com/ss1ngh/ts-booking#readme",
+  "engines": {
+    "node": "^20.19.0 || ^22.12.0 || ^24.0.0"
+  },
   "dependencies": {
     "@prisma/adapter-pg": "^7.4.2",
     "@prisma/client": "^7.4.2",

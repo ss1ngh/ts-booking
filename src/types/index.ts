@@ -1,2 +1,3 @@
-export * from './movies.types';
-export * from './user.types';
+export type * from './movies.types.js';
+export type * from './user.types.js';
+
