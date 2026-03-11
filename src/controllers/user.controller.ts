@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { StatusCodes } from "http-status-codes";
-import { createUser, deleteUser, getUser } from "src/repositories";
-import { createUserSchema } from "src/types";
+import { createUser, deleteUser, getUser, updateUser } from "src/repositories";
+import { createUserSchema, updateUserSchema } from "src/types";
 import {z} from "zod";
 
 export const handleCreateUser = async(req: Request, res : Response, next : NextFunction) => {
@@ -20,7 +20,6 @@ export const handleCreateUser = async(req: Request, res : Response, next : NextF
         next(error);
     }
 }
-
 
 export const handleDeleteUser = async(req : Request, res : Response, next : NextFunction) => {
     try {
@@ -52,6 +51,26 @@ export const handleGetUser = async(req : Request, res : Response, next : NextFun
             error: {}
         });
     } catch (error) {
+        next(error);
+    }
+}
+
+export const handleUpdateUser = async(req : Request, res : Response, next : NextFunction) => {
+    try{
+        //param validation
+        const userId = z.coerce.number().int().positive().parse(req.params.userId);
+        //req body validation
+        const validatedData = updateUserSchema.parse(req.body);
+
+        const updatedUser = await updateUser(userId, validatedData);
+
+        res.status(StatusCodes.OK).json({
+            success: true,
+            message: "User updated successfully",
+            data: updatedUser,
+            error: {}
+        });
+    } catch (error : unknown) {
         next(error);
     }
 }

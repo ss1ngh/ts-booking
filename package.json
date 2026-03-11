@@ -22,13 +22,16 @@
     "@prisma/adapter-pg": "^7.4.2",
     "@prisma/client": "^7.4.2",
     "@types/express": "^5.0.6",
+    "bcrypt": "^6.0.0",
     "express": "^5.2.1",
     "http-status-codes": "^2.3.0",
     "pg": "^8.20.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
     "@types/pg": "^8.18.0",
-    "prisma": "^7.4.2"
+    "prisma": "^7.4.2",
+    "typescript": "^5.9.3"
   }
 }

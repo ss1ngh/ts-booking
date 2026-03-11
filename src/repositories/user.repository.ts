@@ -55,10 +55,14 @@ export const deleteUser = async(userId : number) => {
 }
 
 export const getUser = async(userId : number) => {
-    return prisma.user.findUnique({
+
+    const user = await prisma.user.findUnique({
         where : {userId},
         select : safeUserSelect
     });
+
+    if(!user) throw new NotFoundError("User");
+    return user;
 }
 
 export const getUserByEmail = async(email : string) => {
@@ -89,9 +93,8 @@ export const updateUser = async(userId : number, data : UpdateUserInput) => {
         });
     } catch (error : unknown) {
         if (error instanceof Prisma.PrismaClientKnownRequestError) {
-            if(error.code === 'P2025') {
-                throw new NotFoundError("User");
-            }
+            if(error.code === 'P2025') throw new NotFoundError("User");
+            if (error.code === 'P2002') throw new AppError('Email already in use', 409);
         }
         throw error;
     }
