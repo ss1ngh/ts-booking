@@ -1,6 +1,6 @@
-import { Prisma } from "@generated/prisma";
+import { Prisma } from "@prisma/client";
 import { prisma } from '../config';
-import { AppError, NotFoundError } from "src/utils/AppError";
+import { NotFoundError } from "../utils/AppError";
 
 export const createUser = async(data : Prisma.UserCreateInput) => {
     return await  prisma.user.create({
