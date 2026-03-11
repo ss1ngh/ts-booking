@@ -14,7 +14,7 @@
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": false,
     "noEmit": false,
-    "types": [],
+    "types": ["node"],
     
     /* For nodejs: 
     // "lib": ["esnext"],

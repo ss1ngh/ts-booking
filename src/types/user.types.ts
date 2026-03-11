@@ -10,7 +10,11 @@ export const createUserSchema = z.object({
         .regex(/[0-9]/, "Password must contain at least one number"),
 });
 
-export const updateUserSchema = createUserSchema.partial();
+export const updateUserSchema = createUserSchema
+                                    .partial()
+                                    .refine((data) => Object.keys(data).length > 0, {
+                                        message : "At least one field must be provided to update",
+                                    });
 
 export type CreateUserInput = z.infer<typeof createUserSchema>;
 export type UpdateUserInput = z.infer<typeof updateUserSchema>;
