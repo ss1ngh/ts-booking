@@ -9,17 +9,13 @@
     },
 
     /* Environment Settings */
-    "module": "esnext",
+    "module": "NodeNext",
     "target": "esnext",
-    "moduleResolution": "bundler",
+    "moduleResolution": "NodeNext",
     "allowImportingTsExtensions": false,
     "noEmit": false,
     "types": ["node"],
     
-    /* For nodejs: 
-    // "lib": ["esnext"],
-    // "types": ["node"],
-
     /* Other Outputs */
     "sourceMap": true,
     "declaration": true,
@@ -31,7 +27,6 @@
 
     /* Recommended Options */
     "strict": true,
-    "jsx": "react-jsx",
     "verbatimModuleSyntax": false,
     "isolatedModules": true,
     "noUncheckedSideEffectImports": true,
