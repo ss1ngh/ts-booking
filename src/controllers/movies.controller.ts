@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { addMovie, deleteMovie, getAllMovies, getMovieById, getMoviesWithShowtimes, updateMovie } from "../repositories/index.js";
 import { createMovieSchema, updateMovieSchema } from "../types/index.js";
 import { StatusCodes } from "http-status-codes";
-import z from "zod";
+import {z} from "zod";
 import { NotFoundError } from "../utils/AppError.js";
 
 
