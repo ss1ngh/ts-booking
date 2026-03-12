@@ -1,12 +1,8 @@
 {
   "compilerOptions": {
     /* File Layout */
-    "rootDirs": ["src", "generated"],
+    "rootDir": "./src",
     "outDir": "./dist",
-    "baseUrl": ".", 
-    "paths": {
-      "@generated/*": ["generated/*"]
-    },
 
     /* Environment Settings */
     "module": "NodeNext",
@@ -27,12 +23,11 @@
 
     /* Recommended Options */
     "strict": true,
-    "verbatimModuleSyntax": false,
     "isolatedModules": true,
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
     "skipLibCheck": true
   },
-  "include": ["src/**/*", "generated/**/*"], 
-  "exclude": ["node_modules"]
+  "include": ["src/**/*"], 
+  "exclude": ["node_modules", "dist"]
 }

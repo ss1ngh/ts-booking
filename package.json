@@ -10,17 +10,8 @@
     "type": "git",
     "url": "git+https://github.com/ss1ngh/ts-booking.git"
   },
-<<<<<<< Updated upstream
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "module",
-  "bugs": {
-    "url": "https://github.com/ss1ngh/ts-booking/issues"
-=======
   "engines": {
     "node": ">=20.0.0"
->>>>>>> Stashed changes
   },
   "homepage": "https://github.com/ss1ngh/ts-booking#readme",
   "dependencies": {

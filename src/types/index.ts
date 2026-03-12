@@ -1,2 +1,4 @@
-export * from './movies.types';
-export * from './user.types';
+export * from './movies.types.js';
+export * from './user.types.js';
+export * from './paginationSchema.js';
+
