@@ -1,6 +1,7 @@
 import { NotFoundError } from "../utils/AppError.js";
 import { prisma } from "../config/index.js";
 import { Prisma } from "@prisma/client";
+import { PaginationQuery } from "../types/index.js";
 
 export const addMovie = async (data: Prisma.MovieCreateInput) => {
     const response = await prisma.movie.create({
@@ -29,10 +30,13 @@ export const getMovieById = async (movieId: string) => {
     });
 }
 
-export const getAllMovies = async (options?: { skip?: number; take?: number }) => {
+export const getAllMovies = async (options?: PaginationQuery) => {
     return await prisma.movie.findMany({
         skip: options?.skip,
         take: options?.take ?? 50,
+        orderBy: {
+            movieId: "asc"
+        }
     });
 }
 

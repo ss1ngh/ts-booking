@@ -4,6 +4,7 @@ import { createMovieSchema, updateMovieSchema } from "../types/index.js";
 import { StatusCodes } from "http-status-codes";
 import {z} from "zod";
 import { NotFoundError } from "../utils/AppError.js";
+import { paginationSchema } from "../types/index.js";
 
 
 export const handleAddMovie = async (req: Request, res: Response, next: NextFunction) => {
@@ -62,11 +63,9 @@ export const handleGetMovieById = async (req: Request, res: Response, next: Next
     }
 }
 
-
 export const handleGetAllMovies = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const skip = req.query.skip ? parseInt(req.query.skip as string, 10) : undefined;
-        const take = req.query.take ? parseInt(req.query.take as string, 10) : undefined;
+        const {skip, take} = paginationSchema.parse(req.query);
         const movies = await getAllMovies({ skip, take });
 
         res.status(StatusCodes.OK).json({
