@@ -1,10 +1,9 @@
-import { Request, Response, NextFunction } from "express";
+import type { Request, Response, NextFunction } from "express";
 import { addMovie, deleteMovie, getAllMovies, getMovieById, getMoviesWithShowtimes, updateMovie } from "../repositories/index.js";
-import { createMovieSchema, updateMovieSchema } from "../types/index.js";
+import { createMovieSchema, updateMovieSchema, paginationSchema } from "../types/index.js";
 import { StatusCodes } from "http-status-codes";
 import {z} from "zod";
 import { NotFoundError } from "../utils/AppError.js";
-import { paginationSchema } from "../types/index.js";
 
 
 export const handleAddMovie = async (req: Request, res: Response, next: NextFunction) => {
@@ -31,7 +30,7 @@ export const handleDeleteMovie = async (req: Request, res: Response, next: NextF
         //db call
         await deleteMovie(movieId);
 
-        res.status(StatusCodes.OK).json({
+        return res.status(StatusCodes.OK).json({
             success: true,
             message: "Successfully deleted movie",
             error: {},

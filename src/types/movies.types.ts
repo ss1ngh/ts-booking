@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
 export const createMovieSchema = z.object({
-    title : z.string().min(1, "Title is required"),
-    description : z.string().min(1, "Description is required"),
+    title : z.string().trim().min(1, "Title is required"),
+    description : z.string().trim().min(1, "Description is required"),
     duration : z.coerce.number().positive(),
     releaseDate : z.coerce.date()
 })

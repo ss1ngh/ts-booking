@@ -1,9 +1,9 @@
 import { NotFoundError } from "../utils/AppError.js";
 import { prisma } from "../config/index.js";
 import { Prisma } from "@prisma/client";
-import { PaginationQuery } from "../types/index.js";
+import {CreateMovieInput, UpdateMovieInput, PaginationQuery } from "../types/index.js";
 
-export const addMovie = async (data: Prisma.MovieCreateInput) => {
+export const addMovie = async (data:CreateMovieInput) => {
     const response = await prisma.movie.create({
         data
     });
@@ -25,9 +25,12 @@ export const deleteMovie = async (movieId: string) => {
 }
 
 export const getMovieById = async (movieId: string) => {
-    return await prisma.movie.findUnique({
+    const movie =  await prisma.movie.findUnique({ 
         where: { movieId }
     });
+
+    if(!movie) throw new NotFoundError("Movie");
+    return movie;
 }
 
 export const getAllMovies = async (options?: PaginationQuery) => {
@@ -42,7 +45,7 @@ export const getAllMovies = async (options?: PaginationQuery) => {
 
 export const getMoviesWithShowtimes = async (movieId: string) => {
 
-    return await prisma.movie.findUnique({
+    const movie =  await prisma.movie.findUnique({
         where: { movieId },
         include: {
             showtimes: {
@@ -54,10 +57,13 @@ export const getMoviesWithShowtimes = async (movieId: string) => {
                 }
             }
         }
-    })
+    });
+
+    if(!movie) throw new NotFoundError("Movie");
+    return movie;
 }
 
-export const updateMovie = async (movieId: string, data: Prisma.MovieUpdateInput) => {
+export const updateMovie = async (movieId: string, data: UpdateMovieInput) => {
     try {
         const updatedMovie = await prisma.movie.update({
             where: { movieId },
