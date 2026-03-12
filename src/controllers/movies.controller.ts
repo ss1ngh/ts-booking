@@ -51,7 +51,7 @@ export const handleGetMovieById = async (req: Request, res: Response, next: Next
             throw new NotFoundError("Movie")
         }
 
-        res.status(StatusCodes.OK).json({
+        return res.status(StatusCodes.OK).json({
             success: true,
             message: `Successfully fetched Movie with id : ${movieId}`,
             data: movie,
@@ -67,7 +67,7 @@ export const handleGetAllMovies = async (req: Request, res: Response, next: Next
         const {skip, take} = paginationSchema.parse(req.query);
         const movies = await getAllMovies({ skip, take });
 
-        res.status(StatusCodes.OK).json({
+        return res.status(StatusCodes.OK).json({
             success: true,
             message: "Successfully fetched all Movies",
             data: movies,
@@ -87,7 +87,7 @@ export const handleGetMovieWithShowtimes = async (req: Request, res: Response, n
             throw new NotFoundError("Movie");
         }
 
-        res.status(StatusCodes.OK).json({
+        return res.status(StatusCodes.OK).json({
             success: true,
             message: `Successfully fetched Movie with showtimes`,
             data: movieWithSchedule,
