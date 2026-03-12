@@ -1,7 +1,7 @@
 import { Prisma } from "@prisma/client";
-import { prisma } from '../config';
-import { AppError, NotFoundError } from "../utils/AppError";
-import { CreateUserInput, UpdateUserInput } from "../types";
+import { prisma } from '../config/index.js';
+import { AppError, NotFoundError } from "../utils/AppError.js";
+import { CreateUserInput, UpdateUserInput } from "../types/index.js";
 import bcrypt from 'bcrypt';
 
 const safeUserSelect = {

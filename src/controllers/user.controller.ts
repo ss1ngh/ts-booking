@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { StatusCodes } from "http-status-codes";
-import { createUser, deleteUser, getUser, updateUser } from "src/repositories";
-import { createUserSchema, updateUserSchema } from "src/types";
+import { createUser, deleteUser, getUser, updateUser } from "../repositories/index.js";
+import { createUserSchema, updateUserSchema } from "../types/index.js";
 import {z} from "zod";
 
 export const handleCreateUser = async(req: Request, res : Response, next : NextFunction) => {
