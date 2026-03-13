@@ -8,4 +8,4 @@ userRouter.post('/', handleCreateUser);
 userRouter.delete('/:userId', handleDeleteUser);
 userRouter.patch('/:userId', handleUpdateUser);
 
-export default userRouter;
+export { userRouter };
