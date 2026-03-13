@@ -11,4 +11,4 @@ movieRouter.delete('/:movieId', handleDeleteMovie);
 movieRouter.patch('/:movieId', handleUpdateMovie);
 
 
-export default movieRouter;
+export { movieRouter };
