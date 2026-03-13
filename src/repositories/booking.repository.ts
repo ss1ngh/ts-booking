@@ -77,7 +77,7 @@ export const addBooking = async (data: CreateBookingInput) => {
         showtimeId: data.showtimeId,
         status: "PENDING",
         seats: {
-          connect: data.seatIds.map((id) => ({ id })),
+          connect: data.seatIds.map((id : string) => ({ id })),
         },
       },
       select: safeBookingSelect,
