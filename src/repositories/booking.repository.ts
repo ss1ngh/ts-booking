@@ -1,6 +1,7 @@
   import { AppError, NotFoundError } from "../utils/errors/AppError.js";
   import { prisma } from "../config/index.js";
   import { Prisma } from "@prisma/client";
+  import { setCache, getCache, deleteCache } from "../utils/index.js";
   import {
     CreateBookingInput,
     UpdateBookingInput,
@@ -92,6 +93,11 @@
         where: { id },
         select: safeBookingSelect,
       });
+
+      //delete cache since booking no longer exists
+      const cacheKey = `booking:${id}`;
+      await deleteCache(cacheKey);
+
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -104,6 +110,15 @@
   };
 
   export const getBookingById = async (id: string) => {
+    const cacheKey = `booking:${id}`;
+
+    //get booking details from redis
+    const cachedBooking = await getCache<any>(cacheKey);
+    if(cachedBooking) {
+      return cachedBooking;  //cache hit : return immediately
+    }
+
+    //cache miss
     const booking = await prisma.booking.findUnique({
       where: { id },
       select: {
@@ -119,6 +134,10 @@
     });
 
     if (!booking) throw new NotFoundError("Booking");
+
+    //set cache to redis
+    await setCache(cacheKey, booking, 600);
+
     return booking;
   };
 
@@ -140,6 +159,10 @@
         data,
         select: safeBookingSelect,
       });
+
+      const cacheKey = `booking:${id}`;
+      await deleteCache(cacheKey);
+
       return updatedBooking;
     } catch (error) {
       if (
