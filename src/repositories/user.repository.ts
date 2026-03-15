@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from '../config/index.js';
-import { AppError, NotFoundError } from "../utils/AppError.js";
+import { AppError, NotFoundError } from "../utils/errors/AppError.js";
 import { CreateUserInput, UpdateUserInput } from "../types/index.js";
 import bcrypt from 'bcrypt';
 

@@ -1,4 +1,4 @@
-import { NotFoundError } from "../utils/AppError.js";
+import { NotFoundError } from "../utils/errors/AppError.js";
 import { prisma } from "../config/index.js";
 import { Prisma } from "@prisma/client";
 import { CreateShowtimeInput, UpdateShowtimeInput, PaginationQuery } from "../types/index.js";

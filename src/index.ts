@@ -2,7 +2,7 @@ import express from 'express';
 import type { Request, Response, NextFunction } from 'express';
 import v1Router from './routes/v1/index.js';
 import { StatusCodes } from 'http-status-codes';
-import { AppError } from './utils/AppError.js';
+import { AppError } from './utils/errors/AppError.js';
 import z, { ZodError } from 'zod';
 
 const app = express();

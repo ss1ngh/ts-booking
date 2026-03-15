@@ -3,7 +3,7 @@ import { addMovie, deleteMovie, getAllMovies, getMovieById, getMoviesWithShowtim
 import { createMovieSchema, updateMovieSchema, paginationSchema } from "../types/index.js";
 import { StatusCodes } from "http-status-codes";
 import {z} from "zod";
-import { NotFoundError } from "../utils/AppError.js";
+import { NotFoundError } from "../utils/errors/AppError.js";
 
 
 export const handleAddMovie = async (req: Request, res: Response, next: NextFunction) => {
