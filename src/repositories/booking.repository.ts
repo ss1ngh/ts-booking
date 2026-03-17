@@ -7,6 +7,7 @@
     UpdateBookingInput,
     PaginationQuery,
   } from "../types/index.js";
+import { resourceLimits } from "node:worker_threads";
 
   const safeBookingSelect = {
     id: true,
@@ -17,19 +18,28 @@
   } satisfies Prisma.BookingSelect;
 
   export const addBooking = async (data: CreateBookingInput) => {
-    const lockResource = `showtime:${data.showtimeId}`;
+    //sort to prevent deadlocks
+    const sortedSeatIds = [...data.seatIds].sort();
 
-    const hasLock = await acquireLock(lockResource);
+    const lockResources = sortedSeatIds.map( seatId => `showtime:${data.showtimeId}:seat:${seatId}`);
 
-    if(!hasLock) {
-      throw new AppError("Showtime is currently being updated, Please try again in a moment", 429);
-    }
-
-    try{
-    return await prisma.$transaction(async (tx) => {
+    const acquiredLocks: string[] = [];
+    
+    try {
+      //sequential lock acquisition
+      for(const resource of lockResources) {
+        const hasLock = await acquireLock(resource);
+        
+        if(!hasLock) {
+          throw new AppError("Showtime is currently being updated, Please try again in a moment", 429);
+        }
+        acquiredLocks.push(resource);
+      }
+      
+      return await prisma.$transaction(async (tx) => {
       //verify showtime exists
       const showtime = await tx.showtime.findUnique({
-        where: { id: data.showtimeId },
+        where: { id:data.showtimeId },
         include: { screen: true },
       });
 
@@ -58,7 +68,7 @@
         );
       }
 
-      //check for overlapping Confirmed or Pending bookings for these seats on this showtime
+      //check for overlaps
       const overlappingBookings = await tx.booking.findFirst({
         where: {
           showtimeId: data.showtimeId,
@@ -92,13 +102,20 @@
         },
         select: safeBookingSelect,
       });
+      //prevent ghost booking
+      await setCache(`shadow_booking:${booking.id}`, "pending", 180);
+      //cache invalidation
       await deleteCache(`showtime:availability:${data.showtimeId}`);
       return booking;
     });
   } finally {
-    await releaseLock(lockResource);
+
+    //cleanup all acquired locks
+    for(const resource of acquiredLocks) {
+      await releaseLock(resource.replace('lock:', ''));
+    }
   }
-  };
+};
 
   export const deleteBooking = async (id: string) => {
     try {
@@ -174,6 +191,14 @@
 
       const cacheKey = `booking:${id}`;
       await deleteCache(cacheKey);
+
+      //delete shadow key on payment confirmation
+      if (data.status === "CONFIRMED") {
+      await deleteCache(`shadow_booking:${id}`);
+      
+      // Also invalidate the showtime cache so the seat map reflects the confirmed booking
+      await deleteCache(`showtime:availability:${updatedBooking.showtimeId}`);
+    }
 
       return updatedBooking;
     } catch (error) {
