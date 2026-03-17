@@ -1,7 +1,7 @@
   import { AppError, NotFoundError } from "../utils/errors/AppError.js";
   import { prisma } from "../config/index.js";
   import { Prisma } from "@prisma/client";
-  import { setCache, getCache, deleteCache } from "../utils/index.js";
+  import { setCache, getCache, deleteCache, acquireLock, releaseLock } from "../utils/index.js";
   import {
     CreateBookingInput,
     UpdateBookingInput,
@@ -17,6 +17,15 @@
   } satisfies Prisma.BookingSelect;
 
   export const addBooking = async (data: CreateBookingInput) => {
+    const lockResource = `showtime:${data.showtimeId}`;
+
+    const hasLock = await acquireLock(lockResource);
+
+    if(!hasLock) {
+      throw new AppError("Showtime is currently being updated, Please try again in a moment", 429);
+    }
+
+    try{
     return await prisma.$transaction(async (tx) => {
       //verify showtime exists
       const showtime = await tx.showtime.findUnique({
@@ -83,8 +92,12 @@
         },
         select: safeBookingSelect,
       });
+      await deleteCache(`showtime:availability:${data.showtimeId}`);
       return booking;
     });
+  } finally {
+    await releaseLock(lockResource);
+  }
   };
 
   export const deleteBooking = async (id: string) => {
@@ -95,8 +108,7 @@
       });
 
       //delete cache since booking no longer exists
-      const cacheKey = `booking:${id}`;
-      await deleteCache(cacheKey);
+      await deleteCache(`booking:${id}`);
 
     } catch (error) {
       if (
