@@ -2,10 +2,6 @@
 
 learning by over-engineering a booking system backend
 
-# ts-booking
-
-Learning by over-engineering a movie theater booking system backend.
-
 This project is a high-performance, concurrent API designed to handle complex ticketing scenarios, race conditions, and automated background tasks.
 
 ---
