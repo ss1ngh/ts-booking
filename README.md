@@ -13,6 +13,7 @@ This project is a high-performance, concurrent API designed to handle complex ti
 - **Framework:** Express.js
 - **Database:** PostgreSQL/Prisma ORM
 - **Caching & Message Broker:** Redis
+- **Security:** express-rate-limit (Redis-backed)
 - **Validation:** Zod
 - **Authentication:** bcrypt
 - **Infrastructure:** Docker
@@ -24,6 +25,7 @@ This project is a high-performance, concurrent API designed to handle complex ti
 - **Repository Pattern:** Clean separation of data access logic from HTTP controllers.
 - **Global Error Handling:** Centralized Express middleware utilizing custom `AppError` classes and Zod validation parsing.
 - **Asynchronous Bootstrap:** Server strictly initializes database and cache connections before binding to the Express port to prevent zombie states.
+- **Hybrid Rate Limiting Pipeline:** Tiered protection using sequential middleware to apply different pressure limits based on endpoint sensitivity.
 
 ---
 
@@ -37,14 +39,22 @@ This system heavily leverages Redis to solve complex distributed systems problem
 - **The Solution:** The API utilizes a Redis Mutex pattern. Before touching the PostgreSQL database, the server attempts to acquire a lock on specific seat resources using the atomic `SET NX PX` (Set if Not eXists, with a millisecond Expiration) command.
 - **The Result:** If User A acquires the lock, User B's request is immediately rejected with an HTTP 429 (Too Many Requests), ensuring mathematical certainty that a seat can only be booked by one thread at a time. The lock is safely released in a `finally` block to prevent deadlocks.
 
-### 2. Event-Driven Ghost Booking Cleanup (Background Worker)
+### 2. Distributed Rate Limiting (State Isolation)
+
+- **The Problem:** Standard memory-based limiters fail in distributed environments and lose state upon server restarts. Additionally, mixing rate-limit data with application cache in a single DB risks eviction of security counters.
+- **The Solution:** A dedicated Redis client connects to a separate logical database (DB 1) specifically for `rate-limit-redis`.
+- **The Strategy:** The API implements a hybrid pipeline:
+  - **Aggressive Throttling:** Applied to state-mutating endpoints (POST, PATCH, DELETE) to prevent brute-force and resource exhaustion.
+  - **Normal Throttling:** A broader firewall applied to read-heavy endpoints (GET) to mitigate scraping and general DoS attempts.
+
+### 3. Event-Driven Ghost Booking Cleanup (Background Worker)
 
 - **The Problem:** Users often select seats, locking them into a `PENDING` state, but abandon the checkout process. If not managed, these "ghost bookings" exhaust seat availability permanently.
-- **The Solution:** \* **Shadow Keys:** When a booking is created, a `shadow_booking:{id}` key is written to Redis with a strict 3-minute Time-To-Live (TTL).
+- **The Solution:** - **Shadow Keys:** When a booking is created, a `shadow_booking:{id}` key is written to Redis with a strict 3-minute Time-To-Live (TTL).
   - **Subscriber Mode:** A dedicated Redis client connection operates in Subscriber Mode, listening exclusively to the `__keyevent@0__:expired` channel via Redis Keyspace Notifications.
   - **Atomic Defusal:** If the user pays, the checkout endpoint deletes the shadow key, defusing the timer. If the user abandons the checkout, the TTL hits zero, Redis broadcasts the expiration event, and the background worker intercepts it, automatically querying the database to change the orphaned `PENDING` record to `CANCELLED`.
 
-### 3. Availability Caching
+### 4. Availability Caching
 
 - **Showtime States:** Read-heavy endpoints, such as checking seat availability for a specific showtime, are cached in Redis.
 - **Cache Invalidation:** The cache is systematically invalidated and rebuilt only when a booking state changes (created, confirmed, or cancelled), significantly reducing the read load on the primary PostgreSQL database.
@@ -80,15 +90,20 @@ The PostgreSQL database maps the physical and transactional realities of a cinem
 
 ## Folder Structure
 
-    src/
-    ├── config/
-    ├── controllers/
-    ├── repositories/
-    ├── routes/v1/
-    ├── services/
-    ├── types/
-    ├── utils/errors/
-    └── index.ts
-    prisma/
-    ├── schema.prisma
-    └── migrations/
+```text
+src/
+├── config/           # Redis, Prisma, and environment configurations
+├── controllers/      # Route handlers (logic for processing requests)
+├── repositories/     # Data access layer (Prisma queries)
+├── routes/v1/        # Express route definitions & pipeline sequencing
+├── services/         # Business logic (Seat locking, background workers)
+├── types/            # TypeScript interfaces and shared types
+├── utils/            # Shared internal utilities
+│   ├── cache/        # Redis caching helpers & lock mechanisms
+│   ├── errors/       # Custom AppError classes & Global handler
+│   └── rateLimit/    # Distributed limiter helpers & Redis DB 1 setup
+└── index.ts          # Asynchronous bootstrap and server entry point
+prisma/
+├── schema.prisma     # Relational database models
+└── migrations/       # Version-controlled SQL schema changes
+```
