@@ -11,6 +11,14 @@ import { initRateLimiters } from './utils/rateLimit/rateLimit.helper.js';
 const app = express();
 app.use(express.json());
 
+app.get("/health", (_req, res) => {
+  res.status(200).json({
+    status: "ok",
+    uptime: process.uptime(),
+    timestamp: Date.now(),
+  });
+});
+
 app.use('/' , v1Router);
 
 app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
