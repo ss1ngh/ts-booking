@@ -5,14 +5,15 @@ import { StatusCodes } from 'http-status-codes';
 import { AppError } from './utils/errors/AppError.js';
 import z, { ZodError } from 'zod';
 import { initExpirationService } from './services/expiration.service.js';
-import { connectRedis } from './config/redis.config.js';
+import { connectRedis, connectRateLimitRedis } from './config/redis.config.js';
+import { initRateLimiters } from './utils/rateLimit/rateLimit.helper.js';
 
 const app = express();
 app.use(express.json());
 
 app.use('/' , v1Router);
 
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
     if (err instanceof ZodError) {
         const errorTree = z.treeifyError(err);
         return res.status(StatusCodes.BAD_REQUEST).json({
@@ -47,6 +48,8 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 const startServer = async () => {
     try {
         await connectRedis();
+        await connectRateLimitRedis();
+        await initRateLimiters();
         await initExpirationService();
         
         app.listen(3000, () => console.log("Server running on port 3000"));

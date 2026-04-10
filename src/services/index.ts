@@ -1,1 +1,1 @@
-export * from "./expiration.service";
+export * from "./expiration.service.js";

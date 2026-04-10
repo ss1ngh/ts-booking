@@ -1,7 +1,12 @@
-import { prisma } from "../config";
-import redisClient from "../config/redis.config";
+import { prisma } from "../config/index.js";
+import { getRedisClient } from "../config/redis.config.js";
 
 export const initExpirationService = async () => {
+  const redisClient = getRedisClient();
+  if (!redisClient) {
+    console.log("USE_REDIS=false - Skipping Expiration Service");
+    return;
+  }
   try {
     //duplicate client because a subscriber cannot run SET/GET commands
     const subscriber = redisClient.duplicate();

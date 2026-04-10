@@ -1,13 +1,12 @@
   import { AppError, NotFoundError } from "../utils/errors/AppError.js";
   import { prisma } from "../config/index.js";
-  import { Prisma } from "@prisma/client";
+  import { Prisma } from "../../prisma/generated/client.js";
   import { setCache, getCache, deleteCache, acquireLock, releaseLock } from "../utils/index.js";
   import {
     CreateBookingInput,
     UpdateBookingInput,
     PaginationQuery,
   } from "../types/index.js";
-import { resourceLimits } from "node:worker_threads";
 
   const safeBookingSelect = {
     id: true,
@@ -142,7 +141,7 @@ import { resourceLimits } from "node:worker_threads";
     const cacheKey = `booking:${id}`;
 
     //get booking details from redis
-    const cachedBooking = await getCache<any>(cacheKey);
+    const cachedBooking = await getCache<unknown>(cacheKey);
     if(cachedBooking) {
       return cachedBooking;  //cache hit : return immediately
     }

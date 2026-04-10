@@ -1,6 +1,9 @@
-import redisClient from "../../config/redis.config";
+import { getRedisClient } from "../../config/redis.config.js";
+
+const redisClient = getRedisClient();
 
 export const getCache = async <T>(key: string): Promise<T | null> => {
+  if (!redisClient) return null;
   try {
     const data = await redisClient.get(key);
     if (!data) {
@@ -15,9 +18,10 @@ export const getCache = async <T>(key: string): Promise<T | null> => {
 
 export const setCache = async (
   key: string,
-  data: any,
+  data: unknown,
   ttlSeconds: number = 3600,
 ): Promise<void> => {
+  if (!redisClient) return;
   try {
     const stringifiedData = JSON.stringify(data);
 
@@ -30,6 +34,7 @@ export const setCache = async (
 };
 
 export const deleteCache = async (key: string): Promise<void> => {
+  if (!redisClient) return;
   try {
     await redisClient.del(key);
   } catch (error) {
@@ -41,6 +46,7 @@ export const acquireLock = async (
   resource: string,
   ttlMs: number = 5000,
 ): Promise<boolean> => {
+  if (!redisClient) return false;
   const lockKey = `lock:${resource}`;
 
   try {
@@ -57,6 +63,7 @@ export const acquireLock = async (
 };
 
 export const releaseLock = async (resource: string): Promise<void> => {
+  if (!redisClient) return;
   const lockKey = `lock:${resource}`;
   try {
     await redisClient.del(lockKey);

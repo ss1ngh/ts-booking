@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { Prisma } from "../../prisma/generated/client.js";
 import { prisma } from '../config/index.js';
 import { AppError, NotFoundError } from "../utils/errors/AppError.js";
 import { CreateUserInput, UpdateUserInput } from "../types/index.js";

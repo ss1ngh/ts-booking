@@ -5,23 +5,24 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "./generated"
 }
 
 datasource db {
   provider = "postgresql"
 }
 
-model User{
-  userId      Int      @id @default(autoincrement())
-  email       String   @unique
-  password    String
-  firstName   String
-  lastName    String
-  role        Role     @default(USER)
-  bookings    Booking[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+model User {
+  userId    Int       @id @default(autoincrement())
+  email     String    @unique
+  password  String
+  firstName String
+  lastName  String
+  role      Role      @default(USER)
+  bookings  Booking[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 enum Role {
@@ -31,14 +32,14 @@ enum Role {
 }
 
 model Booking {
-  id          String   @id @default(uuid())
-  userId      Int
-  user        User     @relation(fields: [userId], references: [userId])
-  showtimeId  String
-  showtime    Showtime @relation(fields: [showtimeId], references: [id])
-  seats       Seat[]
-  status      BookingStatus @default(PENDING)
-  createdAt   DateTime @default(now())
+  id         String        @id @default(uuid())
+  userId     Int
+  user       User          @relation(fields: [userId], references: [userId])
+  showtimeId String
+  showtime   Showtime      @relation(fields: [showtimeId], references: [id])
+  seats      Seat[]
+  status     BookingStatus @default(PENDING)
+  createdAt  DateTime      @default(now())
 }
 
 enum BookingStatus {
@@ -48,7 +49,7 @@ enum BookingStatus {
 }
 
 model Movie {
-  movieId     String  @id @default(uuid())
+  movieId     String     @id @default(uuid())
   title       String
   description String
   duration    Int
@@ -57,39 +58,48 @@ model Movie {
 }
 
 model Showtime {
-  id          String @id @default(uuid())
-  startTime   DateTime
-  movieId     String
-  movie       Movie @relation(fields: [movieId], references: [movieId])
-  screenId    String
-  screen      Screen @relation(fields: [screenId], references: [id])
+  id        String   @id @default(uuid())
+  startTime DateTime
+  endTime   DateTime
+  movieId   String
+  movie     Movie    @relation(fields: [movieId], references: [movieId])
+  screenId  String
+  screen    Screen   @relation(fields: [screenId], references: [id])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
   bookings Booking[]
 }
 
 model Theater {
-  id        String @id @default(uuid())
-  name      String
-  location  String?
-  screens   Screen[]
+  id       String   @id @default(uuid())
+  name     String
+  location String?
+  screens  Screen[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model Screen {
-  id        String @id @default(uuid())
+  id        String     @id @default(uuid())
   number    Int
   theaterId String
-  theater   Theater @relation(fields: [theaterId], references: [id])
+  theater   Theater    @relation(fields: [theaterId], references: [id])
   seats     Seat[]
   showtimes Showtime[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model Seat {
-  id        String   @id @default(uuid())
-  row       String
-  number    Int
-  type      SeatType   
-  screenId  String
-  screen    Screen   @relation(fields: [screenId], references: [id]) 
+  id       String   @id @default(uuid())
+  row      String
+  number   Int
+  type     SeatType
+  screenId String
+  screen   Screen   @relation(fields: [screenId], references: [id])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
   bookings Booking[]
 }

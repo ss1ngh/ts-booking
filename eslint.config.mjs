@@ -28,6 +28,6 @@ export default tseslint.config(
   },
   
   {
-    ignores: ['dist/**', 'build/**', 'node_modules/**', 'prisma.config.ts']
+    ignores: ['dist/**', 'build/**', 'node_modules/**', 'prisma.config.ts', 'generated/**', 'prisma/generated/**']
   }
 );
